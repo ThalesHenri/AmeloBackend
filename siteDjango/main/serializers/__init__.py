@@ -1,0 +1,5 @@
+from .anexo_serializer import AnexoSerializer
+from .demanda_serializer import DemandaSerializer
+from .historico_serializer import HistoricoAtualizacaoSerializer
+from .usuario_serializer import UsuarioSerializer
+from .supervisor_serializer import SupervisorSerializer 
