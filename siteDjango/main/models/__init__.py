@@ -4,3 +4,4 @@ from .historicoAtualizacao_model import HistoricoAtualizacao
 from .profissional_model import Profissional
 from .supervisor_model import Supervisor
 from .anexo_model import Anexo
+from .usuario_model import Usuario

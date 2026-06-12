@@ -26,6 +26,8 @@ class DemandaSerializer(serializers.ModelSerializer):
 
 # SERIALIZER DE ESCRITA (POST/PUT/PATCH) - Aceita chaves primárias (IDs)
 class DemandaCreateUpdateSerializer(serializers.ModelSerializer):
+    
+    
     class Meta:
         model = Demanda
         fields = [
@@ -34,3 +36,10 @@ class DemandaCreateUpdateSerializer(serializers.ModelSerializer):
             'previsao_conclusao', 'observacoes'
         ]
         read_only_fields = ['criado_por', 'status']
+    
+    
+    def validate(self,attrs):
+        #Espaço para alguma validação futura.
+        
+        return super().validate(attrs)
+    
