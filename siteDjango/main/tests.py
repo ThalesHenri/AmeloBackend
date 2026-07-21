@@ -1,4 +1,4 @@
-#from django.test import TestCase
+# from django.test import TestCase
 
 # Create your tests here.
 import requests
@@ -69,7 +69,6 @@ def criar_condominio():
         "cidade": "João Pessoa",  
         "estado": "PB",           
         "cep": "58000-000"
-        
     }
     res = session.post(f"{BASE_URL}condominios/", json=payload)
     imprimir_resposta("Criar Condomínio", res)
@@ -113,19 +112,26 @@ def criar_demanda():
     
     if not condo:
         condo = input("⚠️ Nenhum condomínio na memória. Digite o ID do Condomínio: ")
+
+    print("Qual o tipo da demanda?")
+    print("1 - Ocasional (Corretiva)")
+    print("2 - Periódica (Preventiva/Fixa)")
+    tipo_op = input("Escolha (1/2): ")
+    tipo = "OCASIONAL" if tipo_op == "1" else "PERIODICA"
     
     payload = {
         "condominio": int(condo),
-        "titulo": "Teste via Menu Interativo",
+        "titulo": f"Teste via Menu ({tipo})",
         "descricao": "Demanda gerada pelo script de testes CLI.",
+        "tipo": tipo,
         "prioridade": "MEDIA",
         "status": "PENDENTE",
-        "profissional_acionado": prof, # Pode ser None
-        "observacoes": "Teste automatizado."
+        "profissional_acionado": prof, 
+        "observacoes": "Teste automatizado do DevWizard."
     }
     res = session.post(f"{BASE_URL}demandas/", json=payload)
     imprimir_resposta("Criar Demanda", res)
-    if res.status_code == 201:
+    if res.status_code in [201, 200]:
         estado['demanda_id'] = res.json().get('id')
         print(f"✅ Demanda salva no estado (ID: {estado['demanda_id']})")
 
@@ -148,6 +154,34 @@ def enviar_anexo():
     finally:
         os.remove(nome_arquivo)
 
+def alterar_status_demanda():
+    print("\n🔄 Alterando Status da Demanda...")
+    demanda = estado['demanda_id']
+    if not demanda:
+        demanda = input("⚠️ Nenhuma demanda na memória. Digite o ID da Demanda: ")
+
+    print("Escolha o novo status:")
+    print("1 - Em Andamento")
+    print("2 - Concluído")
+    print("3 - Cancelado")
+    op = input("Opção: ")
+    mapa_status = {"1": "EM_ANDAMENTO", "2": "CONCLUIDO", "3": "CANCELADO"}
+    
+    payload = {"status": mapa_status.get(op, "PENDENTE")}
+    
+    # PATCH é o ideal para atualização parcial de status
+    res = session.patch(f"{BASE_URL}demandas/{demanda}/", json=payload)
+    imprimir_resposta("Alterar Status", res)
+
+def visualizar_auditoria():
+    print("\n👁️ Verificando Logs de Auditoria...")
+    demanda = estado['demanda_id']
+    if not demanda:
+        demanda = input("⚠️ Nenhuma demanda na memória. Digite o ID da Demanda: ")
+
+    res = session.get(f"{BASE_URL}demandas/{demanda}/historico/")
+    imprimir_resposta("Histórico de Auditoria Imutável", res)
+
 # ==========================================
 # Menu Interativo (CLI)
 # ==========================================
@@ -156,21 +190,23 @@ def menu_interativo():
     fazer_login_jwt()
 
     while True:
-        print("\n" + "="*45)
-        print(" 🚀 AMELO API - PAINEL DE TESTES CLI")
-        print("="*45)
+        print("\n" + "="*50)
+        print(" 🧙‍♂️ AMELO API - O GRIMÓRIO DE TESTES CLI")
+        print("="*50)
         print(f" 💾 Estado Atual: Condo[{estado['condo_id']}] | Prof[{estado['prof_id']}] | Demanda[{estado['demanda_id']}]")
-        print("-" * 45)
+        print("-" * 50)
         print(" 1. 🏢 Criar Condomínio (Mock)")
         print(" 2. 🛠️  Criar Profissional (Mock)")
         print(" 3. 🛡️  Criar/Vincular Supervisor")
-        print(" 4. 📋 Criar Demanda (Usa Estado Atual)")
+        print(" 4. 📋 Criar Demanda (Periódica/Ocasional)")
         print(" 5. 📎 Enviar Anexo para a Demanda")
-        print(" 6. ⚡ Executar Fluxo Completo (1 -> 2 -> 4 -> 5)")
+        print(" 6. 🔄 Alterar Status da Demanda Salva")
+        print(" 7. 👁️  Visualizar Logs de Auditoria da Demanda")
+        print(" 8. ⚡ Executar Fluxo Completo (1 -> 2 -> 4 -> 5 -> 6)")
         print(" 0. 🚪 Sair")
-        print("="*45)
+        print("="*50)
 
-        escolha = input("👉 Escolha uma opção: ").strip()
+        escolha = input("👉 Escolha uma magia: ").strip()
 
         if escolha == '1':
             criar_condominio()
@@ -183,19 +219,25 @@ def menu_interativo():
         elif escolha == '5':
             enviar_anexo()
         elif escolha == '6':
-            print("\n🔥 INICIANDO TESTE EM MASSA...")
+            alterar_status_demanda()
+        elif escolha == '7':
+            visualizar_auditoria()
+        elif escolha == '8':
+            print("\n🔥 INICIANDO TESTE EM MASSA (O RITUAL COMPLETO)...")
             criar_condominio()
             criar_profissional()
             criar_demanda()
             enviar_anexo()
+            # Força o status para Em Andamento automaticamente no teste em massa
+            session.patch(f"{BASE_URL}demandas/{estado['demanda_id']}/", json={"status": "EM_ANDAMENTO"})
             print("\n🎉 Fluxo completo finalizado com sucesso!")
         elif escolha == '0':
-            print("\n👋 Encerrando painel de testes. Até logo!\n")
+            print("\n👋 O Mago encerra a sessão. Que os Deuses da Programação estejam com você!\n")
             sys.exit(0)
         else:
-            print("\n❌ Opção inválida. Tente novamente.")
+            print("\n❌ Feitiço desconhecido. Tente novamente.")
             
-        input("\nPressione [ENTER] para voltar ao menu...")
+        input("\nPressione [ENTER] para voltar ao grimório...")
 
 if __name__ == '__main__':
     # Testa a conexão com o servidor local antes de abrir o menu e fazer o login
@@ -204,4 +246,4 @@ if __name__ == '__main__':
         menu_interativo()
     except requests.exceptions.ConnectionError:
         print(f"\n❌ ERRO: Não foi possível conectar a {BASE_URL}")
-        print("Verifique se o seu servidor Django está rodando (python manage.py runserver).\n")
+        print("Verifique se o seu servidor Django está rodando na porta 8080.\n")
