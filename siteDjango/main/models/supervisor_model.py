@@ -20,7 +20,7 @@ class Supervisor(models.Model):
         related_name='supervisores',
         blank=True
         )
-    data_criacao = models.DateTimeField(auto_now_add=True)
+    dataCriacao = models.DateTimeField(auto_now_add=True)
     
     def clean(self):
         # Garantir que o gestor não seja o mesmo que o supervisor

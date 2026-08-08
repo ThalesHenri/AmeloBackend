@@ -20,14 +20,14 @@ class Demanda(models.Model):
     urgencia = models.CharField(max_length=12, choices=URGENCIA_CHOICES, default='NAO_URGENTE')
     
     # Criador da demanda (pode ser Gestor ou Supervisor)
-    criado_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='demandas_criadas')
+    criadoPor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='demandas_criadas')
     
     # Profissional acionado para o serviço
-    profissional_acionado = models.ForeignKey(Profissional, on_delete=models.SET_NULL, null=True, blank=True)
+    profissionalAcionado = models.ForeignKey(Profissional, on_delete=models.SET_NULL, null=True, blank=True)
     
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='PENDENTE')
-    data_abertura = models.DateTimeField(auto_now_add=True)
-    previsao_conclusao = models.DateField(blank=True, null=True)
+    dataAbertura = models.DateTimeField(auto_now_add=True)
+    previsaoConclusao = models.DateField(blank=True, null=True)
     observacoes = models.TextField(blank=True, null=True)
 
     def __str__(self):

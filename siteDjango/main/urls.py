@@ -5,7 +5,9 @@ from main.views import (
     DemandaViewSet,
     SupervisorViewSet,
     ProfissionalViewSet,
-    AnexoViewSet # Adicione aqui
+    AnexoViewSet,
+    HealthCheckView,
+    DashboardSummaryView,
 )
 
 router = DefaultRouter()
@@ -18,4 +20,6 @@ router.register(r'anexos', AnexoViewSet, basename='anexo')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('health/',HealthCheckView.as_view(), name='health-check'),
+    path('dashboard/summary', DashboardSummaryView.as_view(), name='dashboard-summary'),
 ]
