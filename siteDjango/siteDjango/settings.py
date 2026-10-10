@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-#8+4+4+*tc=j^831o4$2mkw4a==q5(n$wg5&h@u2k4_0di@u6i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["amelo-api.com.br"]
 
