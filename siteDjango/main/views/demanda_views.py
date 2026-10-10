@@ -7,20 +7,30 @@ from ..services import DemandaService
 from ..permissions import IsSupervisorOrGestor
 
 
+
 class DemandaViewSet(viewsets.ModelViewSet):
     permission_classes = [IsSupervisorOrGestor]
     
     def get_queryset(self):
         this_user = self.request.user
         queryset = Demanda.objects.select_related(
-            'condominio','profissional_acionado','criado_por'
-        ).prefetch_related('anexos','historicos__usuario')
-        
-        if this_user.role == 'SUPERVISOR':
-            return queryset.filter(condominio__supervisores__usuario=this_user)
-        return queryset.filter(condominio__usuario=this_user)
+            'condominio', 'profissionalAcionado', 'criadoPor'
+        ).prefetch_related('anexos', 'historicos__usuario')
+
+        # Gestores veem apenas os condomínios sob sua gestão.
+        # Supervisores têm acesso a demandas de todos os condomínios.
+        if this_user.role == 'GESTOR':
+            queryset = queryset.filter(condominio__usuario=this_user)
+
+        # filtro opcional na url
+        condominio_id = self.request.query_params.get('condominio')
+        if condominio_id:
+            queryset = queryset.filter(condominio_id=condominio_id)
+
+        return queryset
     
     def get_serializer_class(self):
+        
         if self.action in ['create','update','partial_update']:
             return DemandaCreateUpdateSerializer
         return DemandaSerializer

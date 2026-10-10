@@ -3,15 +3,18 @@ from rest_framework.response import Response
 from ..models import Condominio
 from ..serializers import CondominioSerializer
 from ..services import CondominioService
-from ..permissions import IsGestorOnly
+from ..permissions import IsSupervisorOrGestor
+#trocar para isGestor na segunda versão
 
 class CondominioViewSet(viewsets.ModelViewSet):
     serializer_class = CondominioSerializer
-    permission_classes = [IsGestorOnly]
+    permission_classes = [IsSupervisorOrGestor]
 
     def get_queryset(self):
-        return Condominio.objects.filter(usuario=self.request.user)
-
+        this_user = self.request.user
+        if this_user.role == 'SUPERVISOR':
+            return Condominio.objects.filter(supervisores__usuario=this_user)
+        return Condominio.objects.filter(usuario=this_user)
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

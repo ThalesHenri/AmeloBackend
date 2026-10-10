@@ -9,37 +9,31 @@ from .historico_serializer import HistoricoAtualizacaoSerializer
 # SERIALIZER DE LEITURA (GET) - Entrega os dados
 class DemandaSerializer(serializers.ModelSerializer):
     condominio = CondominioSerializer(read_only=True)
-    profissional_acionado = ProfissionalSerializer(read_only=True)
-    criado_por = UsuarioSerializer(read_only=True)
+    profissionalAcionado = ProfissionalSerializer(read_only=True)
+    criadoPor = UsuarioSerializer(read_only=True)
     anexos = AnexoSerializer(many=True, read_only=True)
-    # Puxa o relacionados usando o related_name='historicos' definido no Model
     historicos = HistoricoAtualizacaoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Demanda
         fields = [
-            'id', 'titulo', 'descricao', 'urgencia', 'status', 
-            'data_abertura', 'previsao_conclusao', 'observacoes',
-            'condominio', 'profissional_acionado', 'criado_por', 
+            'id', 'titulo', 'descricao', 'urgencia', 'status',
+            'dataAbertura', 'dataConclusao', 'previsaoConclusao', 'observacoes',
+            'condominio', 'profissionalAcionado', 'criadoPor',
             'anexos', 'historicos'
         ]
 
 # SERIALIZER DE ESCRITA (POST/PUT/PATCH) - Aceita chaves primárias (IDs)
 class DemandaCreateUpdateSerializer(serializers.ModelSerializer):
-    
-    
     class Meta:
         model = Demanda
         fields = [
-            'id', 'condominio', 'titulo', 'descricao', 
-            'urgencia', 'profissional_acionado', 'status', 
-            'previsao_conclusao', 'observacoes'
+            'id', 'condominio', 'titulo', 'descricao',
+            'urgencia', 'profissionalAcionado', 'status',
+            'previsaoConclusao', 'observacoes'
         ]
-        read_only_fields = ['criado_por', 'status']
-    
-    
-    def validate(self,attrs):
-        #Espaço para alguma validação futura.
-        
+        read_only_fields = ['criadoPor', 'dataAbertura']
+
+    def validate(self, attrs):
         return super().validate(attrs)
     

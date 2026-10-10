@@ -8,6 +8,7 @@ from main.views import (
     AnexoViewSet,
     HealthCheckView,
     DashboardSummaryView,
+    AtividadesSupervisoresView,
 )
 
 router = DefaultRouter()
@@ -21,5 +22,6 @@ router.register(r'anexos', AnexoViewSet, basename='anexo')
 urlpatterns = [
     path('', include(router.urls)),
     path('health/',HealthCheckView.as_view(), name='health-check'),
-    path('dashboard/summary', DashboardSummaryView.as_view(), name='dashboard-summary'),
+    path('dashboard/summary/', DashboardSummaryView.as_view(), name='dashboard-summary'),
+    path('dashboard/atividades-supervisores/', AtividadesSupervisoresView.as_view(), name='dashboard-atividades-supervisores'),
 ]

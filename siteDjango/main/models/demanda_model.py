@@ -27,6 +27,7 @@ class Demanda(models.Model):
     
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='PENDENTE')
     dataAbertura = models.DateTimeField(auto_now_add=True)
+    dataConclusao = models.DateTimeField(null=True, blank=True)
     previsaoConclusao = models.DateField(blank=True, null=True)
     observacoes = models.TextField(blank=True, null=True)
 

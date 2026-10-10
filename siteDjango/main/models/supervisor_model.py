@@ -39,6 +39,9 @@ class Supervisor(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        
         return f"{self.usuario.get_full_name() or self.usuario.username} (Supervisor de {self.gestor.get_full_name() or self.gestor.username})"
+
+    @property
+    def ativo(self):
+        return self.usuario.is_active
 

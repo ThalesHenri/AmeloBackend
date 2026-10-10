@@ -12,9 +12,10 @@ class Usuario(AbstractUser):
         choices=ROLE_CHOICES, 
         default='GESTOR'
     )
-    # Dica: Podes trazer o telefone para aqui se quiseres que todo utilizador tenha um
+    
     telefone = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
+    senha_redefinida = models.BooleanField(default=False)
     def get_role_display(self):
         if self.role == 'GESTOR':
             return 'Gestor'

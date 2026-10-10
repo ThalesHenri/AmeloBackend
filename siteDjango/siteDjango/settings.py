@@ -38,9 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main',
+    # Aplicativos de Terceiros & Locais
     'rest_framework',
+    'rest_framework_simplejwt',
+    'main',
 ]
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
@@ -49,11 +52,23 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
 }
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1), # Tempo que o app fica logado
+    # Tempo de vida do token de acesso do app (1 dia)
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    # Tempo de renovação com o refresh token (7 dias)
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    # Fornece um novo refresh token a cada renovação de acesso
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACK_LIST_AFTER_ROTATION': False,
+    # Padrão do cabeçalho de autorização esperado
     'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'TOKEN_TYPE_CLAIM': 'token_type',
 }
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -116,12 +131,13 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'main.Usuario'  # Modelo de usuário personalizado
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Recife'
 
 USE_I18N = True
 

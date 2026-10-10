@@ -1,17 +1,36 @@
+# supervisor_serializer.py
 from rest_framework import serializers
 from ..models import Supervisor
 from .usuario_serializer import UsuarioSerializer
 from .condominio_serializer import CondominioSerializer
 
+
 class SupervisorSerializer(serializers.ModelSerializer):
-    usuario_detalhe = UsuarioSerializer(source='usuario', read_only=True)
-    # 🔥 Ajustado para many=True pois agora retorna uma lista de condomínios
-    condominios_detalhe = CondominioSerializer(source='condominios', many=True, read_only=True)
-    telefone_usuario = serializers.ReadOnlyField(source='usuario.telefone')
+    ativo = serializers.BooleanField(required=False)
+    usuario = UsuarioSerializer()
+    usuarioDetalhe = UsuarioSerializer(source='usuario', read_only=True)
+    condominiosDetalhe = CondominioSerializer(source='condominios', many=True, read_only=True)
+    telefoneUsuario = serializers.ReadOnlyField(source='usuario.telefone')
+
     class Meta:
         model = Supervisor
         fields = [
-            'id', 'usuario', 'gestor', 'condominios','telefone_usuario'
-            'data_criacao', 'usuario_detalhe', 'condominios_detalhe'
+            'id',
+            'ativo',
+            'usuario',
+            'gestor',
+            'condominios',
+            'telefoneUsuario',
+            'dataCriacao',
+            'usuarioDetalhe',
+            'condominiosDetalhe',
         ]
-        read_only_fields = ['gestor','telefone_usuario']
+        read_only_fields = ['gestor', 'telefoneUsuario', 'dataCriacao', 'usuarioDetalhe', 'condominiosDetalhe']
+
+    def to_internal_value(self, data):
+        # 🔑 Em updates, informa ao campo 'usuario' aninhado qual é a instância
+        # atual, para que o UniqueValidator do username exclua o próprio
+        # registro da checagem (senão ele sempre acusa duplicidade em edição).
+        if self.instance is not None:
+            self.fields['usuario'].instance = self.instance.usuario
+        return super().to_internal_value(data)

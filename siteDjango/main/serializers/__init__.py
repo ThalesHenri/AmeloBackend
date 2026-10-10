@@ -5,3 +5,4 @@ from .historico_serializer import HistoricoAtualizacaoSerializer
 from .usuario_serializer import UsuarioSerializer
 from .supervisor_serializer import SupervisorSerializer 
 from .profissional_serializer import ProfissionalSerializer
+from .redefinir_senha_serializer import RedefinirSenhaSerializer

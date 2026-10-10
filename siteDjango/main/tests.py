@@ -9,7 +9,7 @@ import sys
 # ==========================================
 # Configurações Iniciais
 # ==========================================
-BASE_URL = 'http://127.0.0.1:8080/api/v1/'
+BASE_URL = 'http://192.168.0.161:8000/api/v1/'
 USERNAME = 'thales1337' # ⚠️ Coloque um usuário GESTOR válido
 PASSWORD = 'user123'
 
@@ -45,7 +45,7 @@ def fazer_login_jwt():
     }
     
     # A rota de token geralmente fica na raiz da API (ajuste se necessário no seu urls.py)
-    res = session.post(f"{BASE_URL}token/", json=payload_login)
+    res = session.post(f"{BASE_URL}auth/token/", json=payload_login)
     
     if res.status_code == 200:
         token = res.json().get('access')

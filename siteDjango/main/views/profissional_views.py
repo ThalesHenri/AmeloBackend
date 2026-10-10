@@ -3,11 +3,12 @@ from rest_framework.response import Response
 from ..models import Profissional
 from ..serializers import ProfissionalSerializer
 from ..services import ProfissionalService
-from ..permissions import IsGestorOnly
+from ..permissions import IsSupervisorOrGestor
+#trocar para isGestor na segunda versão
 
 class ProfissionalViewSet(viewsets.ModelViewSet):
     serializer_class = ProfissionalSerializer
-    permission_classes = [IsGestorOnly]
+    permission_classes = [IsSupervisorOrGestor]
 
     def get_queryset(self):
         return Profissional.objects.filter(usuario=self.request.user)
