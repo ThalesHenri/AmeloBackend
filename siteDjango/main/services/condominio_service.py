@@ -6,22 +6,29 @@ class CondominioService:
     
     @staticmethod
     def criar_condominio(dados_validados: dict, this_usuario: Usuario):
-        # Cadastra um condomínio e associa o ao gestor logado
-        print(f"DEBUG: Tipo do usuário recebido: {type(this_usuario)}")
-        print(f"DEBUG: Valor do usuário: {this_usuario}")
-        if this_usuario.role != 'GESTOR':
-            raise PermissionDenied("Apenas gestores podem criar condomínios.")
+        supervisor = None
+        gestor = this_usuario
+        if this_usuario.role == 'SUPERVISOR':
+            try:
+                supervisor = Supervisor.objects.select_related('gestor').get(usuario=this_usuario)
+            except Supervisor.DoesNotExist:
+                raise PermissionDenied("Supervisor sem gestor associado.")
+            gestor = supervisor.gestor
+        elif this_usuario.role != 'GESTOR':
+            raise PermissionDenied("Apenas gestores e supervisores podem criar condomínios.")
         
         condominio = Condominio.objects.create(
-            usuario=this_usuario,
+            usuario=gestor,
             **dados_validados
         )
+        if supervisor:
+            supervisor.condominios.add(condominio)
         
         return condominio
     
     @staticmethod
     def atualizar_condominio(this_usuario: Usuario, condominio: Condominio, dados_validados: dict):
-        # Atualiza os dados se o usuário for gestor ligado a ele
+        # Condomínios pertencem ao gestor; supervisores só podem cadastrá-los.
         if condominio.usuario != this_usuario:
             raise PermissionDenied("Você não tem permissão para atualizar este condomínio.")
         

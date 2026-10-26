@@ -4,6 +4,7 @@ from ..models import Profissional
 from ..serializers import ProfissionalSerializer
 from ..services import ProfissionalService
 from ..permissions import IsSupervisorOrGestor
+from ..tenant import gestor_id_do_usuario
 #trocar para isGestor na segunda versão
 
 class ProfissionalViewSet(viewsets.ModelViewSet):
@@ -11,7 +12,9 @@ class ProfissionalViewSet(viewsets.ModelViewSet):
     permission_classes = [IsSupervisorOrGestor]
 
     def get_queryset(self):
-        return Profissional.objects.filter(usuario=self.request.user)
+        return Profissional.objects.filter(
+            usuario_id=gestor_id_do_usuario(self.request.user)
+        )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

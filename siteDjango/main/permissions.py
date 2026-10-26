@@ -18,7 +18,7 @@ class IsSupervisorOrGestor(permissions.BasePermission):
         if request.user.role == 'GESTOR':
             return True
             
-        if request.user.role == 'SUPERVISOR' and request.method in ['GET', 'POST', 'PUT', 'PATCH']:
+        if request.user.role == 'SUPERVISOR' and request.method in ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']:
             return True
             
         return False

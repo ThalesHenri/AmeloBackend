@@ -5,6 +5,7 @@ from ..models import Demanda,HistoricoAtualizacao
 from ..serializers import DemandaSerializer,DemandaCreateUpdateSerializer,HistoricoAtualizacaoSerializer
 from ..services import DemandaService
 from ..permissions import IsSupervisorOrGestor
+from ..tenant import gestor_id_do_usuario
 
 
 
@@ -17,10 +18,10 @@ class DemandaViewSet(viewsets.ModelViewSet):
             'condominio', 'profissionalAcionado', 'criadoPor'
         ).prefetch_related('anexos', 'historicos__usuario')
 
-        # Gestores veem apenas os condomínios sob sua gestão.
-        # Supervisores têm acesso a demandas de todos os condomínios.
-        if this_user.role == 'GESTOR':
-            queryset = queryset.filter(condominio__usuario=this_user)
+        # Gestores e supervisores só acessam dados do mesmo gestor responsável.
+        queryset = queryset.filter(
+            condominio__usuario_id=gestor_id_do_usuario(this_user)
+        )
 
         # filtro opcional na url
         condominio_id = self.request.query_params.get('condominio')

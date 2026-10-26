@@ -4,6 +4,7 @@ from ..models import Condominio
 from ..serializers import CondominioSerializer
 from ..services import CondominioService
 from ..permissions import IsSupervisorOrGestor
+from ..tenant import gestor_id_do_usuario
 #trocar para isGestor na segunda versão
 
 class CondominioViewSet(viewsets.ModelViewSet):
@@ -11,10 +12,11 @@ class CondominioViewSet(viewsets.ModelViewSet):
     permission_classes = [IsSupervisorOrGestor]
 
     def get_queryset(self):
-        this_user = self.request.user
-        if this_user.role == 'SUPERVISOR':
-            return Condominio.objects.filter(supervisores__usuario=this_user)
-        return Condominio.objects.filter(usuario=this_user)
+        # Supervisor vê todos os condomínios do próprio gestor, mesmo os que
+        # ainda não estão alocados na carteira; dados de outros gestores ficam isolados.
+        return Condominio.objects.filter(
+            usuario_id=gestor_id_do_usuario(self.request.user)
+        )
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

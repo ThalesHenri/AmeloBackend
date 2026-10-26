@@ -4,7 +4,10 @@ from django.views import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Count, Q
 from ..models import Demanda
+from ..models import Profissional, Supervisor
+from ..tenant import gestor_id_do_usuario
 from ..serializers import UsuarioSerializer, RedefinirSenhaSerializer
 from ..services import HealthService
 
@@ -26,10 +29,9 @@ class DashboardSummaryView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        if request.user.role == 'GESTOR':
-            queryset = Demanda.objects.filter(condominio__usuario=request.user)
-        else:
-            queryset = Demanda.objects.all()
+        queryset = Demanda.objects.filter(
+            condominio__usuario_id=gestor_id_do_usuario(request.user)
+        )
 
         total = queryset.count()
         abertas = queryset.filter(status='PENDENTE').count()
@@ -72,6 +74,42 @@ class AtividadesSupervisoresView(APIView):
         ]
 
         return Response(dados, status=200)
+
+
+class MetricasProfissionaisView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        usuario = request.user
+        if usuario.role == 'SUPERVISOR':
+            try:
+                gestor = Supervisor.objects.only('gestor_id').get(usuario=usuario).gestor
+            except Supervisor.DoesNotExist:
+                return Response({'detail': 'Supervisor sem gestor associado.'}, status=403)
+        elif usuario.role == 'GESTOR':
+            gestor = usuario
+        else:
+            return Response({'detail': 'Apenas gestores e supervisores podem consultar esta métrica.'}, status=403)
+
+        profissionais = Profissional.objects.filter(usuario=gestor).annotate(
+            demandas_concluidas=Count(
+                'demanda',
+                filter=Q(
+                    demanda__status='CONCLUIDA',
+                    demanda__condominio__usuario=gestor,
+                ),
+            )
+        ).order_by('nome', 'id')
+
+        return Response([
+            {
+                'id': profissional.id,
+                'nome': profissional.nome,
+                'especialidade': profissional.especialidade,
+                'demandas_concluidas': profissional.demandas_concluidas,
+            }
+            for profissional in profissionais
+        ], status=200)
 
 
 class RedefinirSenhaView(APIView):

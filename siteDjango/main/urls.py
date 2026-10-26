@@ -9,6 +9,7 @@ from main.views import (
     HealthCheckView,
     DashboardSummaryView,
     AtividadesSupervisoresView,
+    MetricasProfissionaisView,
 )
 
 router = DefaultRouter()
@@ -24,4 +25,5 @@ urlpatterns = [
     path('health/',HealthCheckView.as_view(), name='health-check'),
     path('dashboard/summary/', DashboardSummaryView.as_view(), name='dashboard-summary'),
     path('dashboard/atividades-supervisores/', AtividadesSupervisoresView.as_view(), name='dashboard-atividades-supervisores'),
+    path('dashboard/metricas-profissionais/', MetricasProfissionaisView.as_view(), name='dashboard-metricas-profissionais'),
 ]
